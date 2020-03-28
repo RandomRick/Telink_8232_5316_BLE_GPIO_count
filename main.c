@@ -19,6 +19,11 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided. 
  *           
  *******************************************************************************************************/
+/* Information for Telink's other processor about counting trigger pulses.  But it looks like it's the same code as for the 8232,
+ * and may already even be in the 5316_driver_test example code for the 8232.
+ *
+ * http://wiki.telink-semi.cn/driver/doc/kite/html/group___g_p10.html#TIMER_GPIO_TRIGGER_MODE
+ */
 #include "app.h"
 #include <tl_common.h>
 #include "drivers.h"
@@ -27,10 +32,19 @@
 #include "../common/blt_fw_sign.h"
 
 
-
+int timer2_irq_cnt = 0; /* RJH */
 _attribute_ram_code_ void irq_handler(void)
 {
 	irq_blt_sdk_handler();
+
+	/* RJH From: app_timer_test_irq_proc (5316_driver_test, app_timer.c) */
+	if(reg_tmr_sta & FLD_TMR_STA_TMR2)
+	{
+		reg_tmr_sta |= FLD_TMR_STA_TMR2; //clear irq status
+
+		timer2_irq_cnt ++;
+		/* gpio_toggle(GPIO_LED); */
+	}
 }
 
 int main(void)

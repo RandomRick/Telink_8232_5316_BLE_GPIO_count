@@ -26,6 +26,8 @@
 #include "../common/keyboard.h"
 #include "../common/blt_common.h"
 
+#define GPIO_TRIGGER_PIN        GPIO_PC2 /* RJH copied from 5316_driver_test app_timer.c */
+
 
 #if (__PROJECT_REFCO_demo__ )
 
@@ -49,7 +51,7 @@ MYFIFO_INIT(blt_txfifo, 40, 16);
 
 /* ADV Packet, SCAN Response Packet define */
 const u8 tbl_advData[] = {
-	 0x05, 0x09, 'G', 'h', 'i', 'd',
+	 0x09, 0x09, 'W', 'a', 'n', 'k', 'M', 'u', 'f', 'f',
 	 0x02, 0x01, 0x05, 							// BLE limited discoverable mode and BR/EDR not supported
 	 0x03, 0x19, 0x80, 0x01, 					// 384, Generic Remote Control, Generic category
 	 0x05, 0x02, 0x12, 0x18, 0x0F, 0x18,		// incomplete list of service class UUIDs (0x1812, 0x180F)
@@ -340,6 +342,15 @@ void  ble_remote_set_sleep_wakeup(u8 e, u8 *p, int n)
 
 void user_init()
 {
+	/*RJH
+	 * Copied from 5316_driver_test app_timer.c
+	 * GPIO_TRIGGER_PIN will be project-specific.
+	 */
+	timer2_gpio_init(GPIO_TRIGGER_PIN, GPIO_Pol_falling);
+	//irq_enable(); /* RJH This call is in main(), but does commenting it out here cause a problem for the following two lines? */
+	timer2_set_mode(TIMER_MODE_GPIO_TRIGGER,0,3);
+	timer_start(TIMER2);
+	/* RJH */
 	/*
 	 ***************************************************************************
 	 * Keyboard matrix initialization. These section must be before battery_power_check.
